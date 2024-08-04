@@ -1,17 +1,13 @@
-wrongpoint=[]
 from dotenv import load_dotenv
 import os
+from zundamon import textToVoice
 load_dotenv()
 
 import openai
-from openai import OpenAI
-client = OpenAI()
+client = openai.OpenAI()
 
 import fitz  # PyMuPDF
-import openai
 
-# OpenAI APIキーの設定
-openai.api_key = 'your-api-key'
 
 def extract_text_from_pdf(pdf_path):
     document = fitz.open(pdf_path)
@@ -21,27 +17,34 @@ def extract_text_from_pdf(pdf_path):
         text += page.get_text()
     return text
 
-def get_chatgpt_response(prompt):
-    response = openai.Completion.create(
-        engine="text-davinci-003",  # または最新のモデル
-        prompt=prompt,
-        max_tokens=150
-    )
-    return response.choices[0].text.strip()
 
-pdf_path = "C:\\Users\\kosuk\\OneDrive\\Desktop\\勉強関係\\課題\\物理化学\\1025368319MonExp1-坂倉光祐.pdf"
-pdf_text = extract_text_from_pdf(pdf_path)
-
-
-
-
-
-completion = client.chat.completions.create(
-  model="gpt-4o-mini",
-  messages=[
+def correct_report(file, dialect: str | None, human: str | None) -> str:
+  
+    pdf_text = extract_text_from_pdf(file)
     
-    {"role": "user", "content": f'{pdf_text} "このレポートを添削して。返答は関西弁でよろしく"'}
-  ]
-)
+    if not dialect and not human:
+        return "添削する方言を指定してほしいのだ"
+    
+    if dialect:
+        completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "user", "content": f'{pdf_text} "このレポートを添削して。返答は{dialect}でよろしく"'}
+        ]
+        )
+        
+        return completion.choices[0].message.content.strip()
+    
+    if human:
+        completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "user", "content": f'{pdf_text} "このレポートを添削して。採点者は{human}でお願い"'}
+        ]
+        )
+        
+        return completion.choices[0].message.content.strip()
+        
 
-print(completion.choices[0].message.content.strip())
+if __name__ == '__main__':
+    textToVoice('もちろん、サンプルレポートを添削するのは楽しいわね！それじゃあ、早速見てみるわね。どんな内容なのか教えてくれる？')
