@@ -1,5 +1,5 @@
 import streamlit as st
-
+from selectpeople import people_select_box
 test_lists = [
     'よって、以下のような結論が導ける',
     'あいうえお'
@@ -43,3 +43,5 @@ if __name__ == '__main__':
     for i, target_part in enumerate(should_correct_parts):
         with st.expander(f'{i+1}箇所目'):
             show_toggle_contents(target_part=target_part ,key=i)
+
+    people_select_box()
